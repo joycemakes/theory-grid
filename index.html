@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#02060d">
 <title>THEORY GRID</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Theory Grid">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -67,6 +74,9 @@ select.chip option{background:#03121d;color:var(--txt)}
 .card{flex:1;min-height:0;display:flex;flex-direction:column;margin-top:10px;overflow-y:auto;scrollbar-width:none}
 .card::-webkit-scrollbar{display:none}
 .topic{font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:2.5px;color:var(--or);margin-bottom:6px}
+.topic .re{margin-left:8px;padding:1px 6px;color:var(--bg);background:var(--red);box-shadow:0 0 10px var(--red);border-radius:2px;letter-spacing:1.5px}
+.install{display:none;margin-top:8px;width:100%;min-height:40px;font-family:Orbitron,sans-serif;font-weight:700;font-size:11px;letter-spacing:2.5px;color:var(--cy);background:rgba(25,230,255,.08);border:1px dashed var(--cy);border-radius:3px;cursor:pointer}
+.install.on{display:block}
 .q{font-size:21px;line-height:1.22;font-weight:700;color:#fff;margin:0 0 10px;text-shadow:0 0 14px rgba(25,230,255,.25)}
 .sign{width:104px;height:104px;margin:0 auto 10px;filter:drop-shadow(0 0 14px rgba(25,230,255,.45))}
 .sign svg{width:100%;height:100%}
@@ -120,6 +130,8 @@ select.chip option{background:#03121d;color:var(--txt)}
     <button class="chip" id="mute" aria-label="Sound">SND</button>
   </div>
 
+  <button class="install" id="install">&#11015; INSTALL APP</button>
+
   <div class="stats">
     <div class="stat"><div class="l">SCORE</div><div class="v" id="score">0</div><div class="l" id="rank">ROOKIE</div></div>
     <div class="stat streak" id="streakBox"><div class="l">STREAK</div><div class="v" id="streak">0</div><div class="mult" id="mult">x1</div></div>
@@ -127,7 +139,7 @@ select.chip option{background:#03121d;color:var(--txt)}
   </div>
 
   <div class="trail" id="trail"><i id="trailFill"></i></div>
-  <div class="trailcap"><span id="trailL">0</span><span id="trailMsg">PASS LINE <b>43</b></span></div>
+  <div class="trailcap"><span id="trailL">0</span><span id="weak" style="color:var(--red)"></span><span id="trailMsg">PASS LINE <b>43</b></span></div>
 
   <div class="card" id="card">
     <div class="topic" id="topic"></div>
@@ -155,7 +167,12 @@ select.chip option{background:#03121d;color:var(--txt)}
   try { Object.assign(save, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
   const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(save)); } catch (e) {} };
 
-  let streak = 0, deck = [], cur = -1, locked = false, timer = 0;
+  // misses are keyed by question text, so adding questions later does not scramble them
+  const texts = new Set(QUESTIONS.map(q => q[1]));
+  Object.keys(save.miss).forEach(k => { if (!texts.has(k)) delete save.miss[k]; });
+
+  let streak = 0, deck = [], cur = -1, locked = false, timer = 0, recent = [];
+  const weakHud = () => { const n = Object.keys(save.miss).length; $("weak").textContent = n ? n + " TO REMATCH" : ""; };
 
   // ---- sound
   let ac = null;
@@ -208,13 +225,28 @@ select.chip option{background:#03121d;color:var(--txt)}
   function show() {
     clearTimeout(timer);
     if (!deck.length) refill();
-    cur = deck.shift();
+    // Bias towards questions you have got wrong: about half the time, while any are
+    // outstanding, the next question is one of them (the more misses, the likelier).
+    const weak = QUESTIONS.map((q, i) => i).filter(i => save.miss[QUESTIONS[i][1]] && !recent.includes(i) && (save.topic === "ALL" || QUESTIONS[i][0] === save.topic));
+    let retry = false;
+    if (weak.length && Math.random() < 0.5) {
+      let r = Math.random() * weak.reduce((s, i) => s + save.miss[QUESTIONS[i][1]], 0);
+      cur = weak.find(i => (r -= save.miss[QUESTIONS[i][1]]) < 0);
+      if (cur === undefined) cur = weak[0];
+      deck = deck.filter(i => i !== cur);
+      retry = true;
+    } else {
+      cur = deck.shift();
+      retry = !!save.miss[QUESTIONS[cur][1]];
+    }
+    recent.push(cur); if (recent.length > 3) recent.shift();
     const [tp, text, opts, , sign] = QUESTIONS[cur];
     locked = false;
     document.body.classList.remove("crash");
     $("card").classList.remove("locked");
     $("why").classList.remove("on"); $("next").classList.remove("on");
-    $("topic").textContent = TOPICS[tp].toUpperCase();
+    $("topic").innerHTML = TOPICS[tp].toUpperCase() + (retry ? ' <b class="re">REMATCH</b>' : "");
+    weakHud();
     $("q").textContent = text;
     const s = $("sign"); s.hidden = !sign; s.innerHTML = sign ? SIGNS[sign] : "";
     const box = $("answers"); box.innerHTML = "";
@@ -242,7 +274,7 @@ select.chip option{background:#03121d;color:var(--txt)}
       save.score += 100 * mult();
       const newBest = streak > save.best;
       if (newBest) save.best = streak;
-      if (save.miss[cur]) { save.miss[cur]--; if (!save.miss[cur]) delete save.miss[cur]; }
+      if (save.miss[q[1]]) { save.miss[q[1]]--; if (!save.miss[q[1]]) delete save.miss[q[1]]; }
       persist(); hud(true);
       fx($("flash"), "good"); $("flash").classList.remove("bad");
       buzz(25);
@@ -253,8 +285,7 @@ select.chip option{background:#03121d;color:var(--txt)}
       b.classList.add("wrong");
       const lost = streak;
       streak = 0;
-      save.miss[cur] = 2;                       // must be answered right twice more to clear
-      deck.splice(Math.min(deck.length, 4 + (Math.random() * 4 | 0)), 0, cur);   // comes back soon
+      save.miss[q[1]] = Math.min(4, (save.miss[q[1]] || 0) + 2);   // each miss needs two right answers to clear
       persist(); hud(false);
       document.body.classList.add("crash");
       $("flash").classList.remove("good"); fx($("flash"), "bad"); fx($("app"), "shake");
@@ -282,6 +313,15 @@ select.chip option{background:#03121d;color:var(--txt)}
     if (e.key >= "1" && e.key <= "4") { const b = $("answers").children[e.key - 1]; b && b.click(); }
     else if ((e.key === "Enter" || e.key === " ") && $("next").classList.contains("on")) { e.preventDefault(); show(); }
   });
+
+  // ---- installable app
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+  const inst = $("install"), standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  let deferred = null;
+  addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; inst.classList.add("on"); });
+  addEventListener("appinstalled", () => inst.classList.remove("on"));
+  if (!standalone && /iphone|ipad|ipod/i.test(navigator.userAgent)) { inst.textContent = "INSTALL: TAP SHARE, THEN ADD TO HOME SCREEN"; inst.classList.add("on"); }
+  inst.onclick = () => { if (deferred) { deferred.prompt(); deferred = null; } inst.classList.remove("on"); };
 
   paintMute(); hud(false); refill(); show();
   window.__grid = { get streak() { return streak; }, get cur() { return cur; }, save };
