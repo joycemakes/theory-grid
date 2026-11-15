@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#02060d">
+<title>THEORY GRID</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#02060d; --cy:#19e6ff; --cy2:#0b7f99; --or:#ff7a18; --red:#ff2b4a; --gr:#3dffa2; --gold:#ffd24a;
+  --txt:#d9f8ff; --dim:#6f9aa8; --panel:rgba(4,18,30,.82);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--txt);font-family:Rajdhani,"Segoe UI",system-ui,sans-serif;font-weight:600;overflow:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+
+/* moving floor grid */
+.sky{position:fixed;inset:0;background:radial-gradient(120% 70% at 50% 0%,#06223a 0%,#02060d 60%);z-index:-3}
+.floor{position:fixed;left:-50%;right:-50%;bottom:0;height:46vh;z-index:-2;transform:perspective(320px) rotateX(62deg);transform-origin:50% 100%;
+  background-image:linear-gradient(var(--cy2) 2px,transparent 2px),linear-gradient(90deg,var(--cy2) 2px,transparent 2px);
+  background-size:56px 56px;animation:run 1.6s linear infinite;opacity:.55;
+  -webkit-mask-image:linear-gradient(transparent,#000 70%);mask-image:linear-gradient(transparent,#000 70%)}
+@keyframes run{to{background-position:0 56px}}
+body.crash .floor{background-image:linear-gradient(var(--red) 2px,transparent 2px),linear-gradient(90deg,var(--red) 2px,transparent 2px);animation-play-state:paused}
+.flash{position:fixed;inset:0;z-index:5;pointer-events:none;opacity:0}
+.flash.bad{background:radial-gradient(circle,rgba(255,43,74,.15),rgba(255,43,74,.7));animation:fl .7s ease-out}
+.flash.good{background:radial-gradient(circle,rgba(61,255,162,0),rgba(61,255,162,.28));animation:fl .45s ease-out}
+@keyframes fl{0%{opacity:1}100%{opacity:0}}
+
+.app{height:100%;max-width:560px;margin:0 auto;display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top)) 14px calc(12px + env(safe-area-inset-bottom))}
+.shake{animation:shake .5s}
+@keyframes shake{10%,90%{transform:translateX(-3px)}20%,80%{transform:translateX(6px)}30%,50%,70%{transform:translateX(-10px)}40%,60%{transform:translateX(10px)}}
+
+/* HUD */
+.hud{display:flex;align-items:center;gap:10px}
+.logo{font-family:Orbitron,sans-serif;font-weight:900;font-size:15px;letter-spacing:3px;color:var(--cy);text-shadow:0 0 12px var(--cy)}
+.logo b{color:var(--or);text-shadow:0 0 12px var(--or)}
+.sp{flex:1}
+.chip{font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--cy);border:1px solid var(--cy2);background:rgba(25,230,255,.06);padding:7px 9px;border-radius:3px;min-height:34px;display:flex;align-items:center}
+button.chip{cursor:pointer}
+.hud{min-width:0}.logo{white-space:nowrap}
+select.chip{appearance:none;-webkit-appearance:none;min-width:0;flex:0 1 128px;width:128px;text-overflow:ellipsis;font-weight:700;outline:none}
+select.chip option{background:#03121d;color:var(--txt)}
+
+.stats{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:8px;margin-top:10px;align-items:end}
+.stat{text-align:center}
+.stat .l{font-family:Orbitron,sans-serif;font-size:9px;letter-spacing:2px;color:var(--dim)}
+.stat .v{font-family:Orbitron,sans-serif;font-weight:700;font-size:20px;color:var(--txt)}
+.streak .v{font-size:54px;font-weight:700;line-height:1;color:var(--cy);text-shadow:0 0 18px var(--cy),0 0 40px rgba(25,230,255,.5)}
+.streak.hot .v{color:var(--or);text-shadow:0 0 18px var(--or),0 0 40px rgba(255,122,24,.6)}
+.streak.gold .v{color:var(--gold);text-shadow:0 0 18px var(--gold),0 0 44px rgba(255,210,74,.7)}
+.pop{animation:pop .3s}
+@keyframes pop{40%{transform:scale(1.28)}}
+.mult{display:inline-block;font-family:Orbitron,sans-serif;font-size:11px;color:var(--bg);background:var(--or);padding:1px 6px;border-radius:2px;box-shadow:0 0 10px var(--or);margin-top:2px}
+
+/* trail to the pass line */
+.trail{position:relative;height:16px;margin:10px 2px 2px;border:1px solid var(--cy2);border-radius:2px;background:rgba(25,230,255,.05);overflow:visible}
+.trail i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,transparent,var(--cy));box-shadow:0 0 14px var(--cy);transition:width .35s cubic-bezier(.2,.9,.3,1)}
+.trail i::after{content:"";position:absolute;right:-3px;top:-4px;bottom:-4px;width:8px;background:#fff;border-radius:2px;box-shadow:0 0 12px #fff,0 0 22px var(--cy)}
+.trail.gold i{background:linear-gradient(90deg,transparent,var(--gold));box-shadow:0 0 14px var(--gold)}
+.trailcap{display:flex;justify-content:space-between;font-family:Orbitron,sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--dim);margin:4px 2px 0}
+.trailcap b{color:var(--cy);font-weight:700}
+
+/* card */
+.card{flex:1;min-height:0;display:flex;flex-direction:column;margin-top:10px;overflow-y:auto;scrollbar-width:none}
+.card::-webkit-scrollbar{display:none}
+.topic{font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:2.5px;color:var(--or);margin-bottom:6px}
+.q{font-size:21px;line-height:1.22;font-weight:700;color:#fff;margin:0 0 10px;text-shadow:0 0 14px rgba(25,230,255,.25)}
+.sign{width:104px;height:104px;margin:0 auto 10px;filter:drop-shadow(0 0 14px rgba(25,230,255,.45))}
+.sign svg{width:100%;height:100%}
+.answers{display:grid;gap:9px;margin-top:auto}
+.a{position:relative;display:flex;align-items:center;gap:12px;width:100%;min-height:58px;padding:10px 14px 10px 10px;text-align:left;
+  font:inherit;font-size:17px;line-height:1.18;color:var(--txt);background:linear-gradient(90deg,rgba(25,230,255,.13),rgba(25,230,255,.03));
+  border:1.5px solid var(--cy);cursor:pointer;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
+  box-shadow:inset 0 0 18px rgba(25,230,255,.12);transition:transform .08s,background .15s}
+.a::before{content:"";position:absolute;right:0;top:0;width:20px;height:1.5px;background:var(--cy);transform-origin:100% 0;transform:rotate(45deg) translate(6px,-1px)}
+.a:active{transform:scale(.98)}
+.a .k{flex:0 0 34px;height:34px;display:grid;place-items:center;font-family:Orbitron,sans-serif;font-weight:700;font-size:14px;color:var(--bg);background:var(--cy);box-shadow:0 0 12px var(--cy);clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%)}
+.a.right{border-color:var(--gr);color:#fff;background:linear-gradient(90deg,rgba(61,255,162,.35),rgba(61,255,162,.08));box-shadow:0 0 22px rgba(61,255,162,.45),inset 0 0 18px rgba(61,255,162,.25)}
+.a.right .k{background:var(--gr);box-shadow:0 0 12px var(--gr)}
+.a.wrong{border-color:var(--red);color:#fff;background:linear-gradient(90deg,rgba(255,43,74,.45),rgba(255,43,74,.1));box-shadow:0 0 22px rgba(255,43,74,.55)}
+.a.wrong .k{background:var(--red);box-shadow:0 0 12px var(--red)}
+.a.off{opacity:.3}
+.locked .a{pointer-events:none}
+
+/* why panel */
+.why{display:none;margin-top:10px;padding:12px 14px;border:1.5px solid var(--red);background:var(--panel);box-shadow:0 0 24px rgba(255,43,74,.3);
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%)}
+.why.on{display:block;animation:rise .25s ease-out}
+@keyframes rise{from{transform:translateY(14px);opacity:0}}
+.why h3{margin:0 0 4px;font-family:Orbitron,sans-serif;font-size:13px;letter-spacing:2px;color:var(--red);text-shadow:0 0 10px var(--red)}
+.why h3 span{color:var(--dim);font-size:10px;margin-left:6px}
+.why .ans{color:var(--gr);font-size:17px;font-weight:700;margin-bottom:6px}
+.why .ans small{display:block;font-family:Orbitron,sans-serif;font-size:9px;letter-spacing:2px;color:var(--dim)}
+.why p{margin:0;font-size:16.5px;line-height:1.3;color:var(--txt);font-weight:500}
+.next{display:none;margin-top:10px;width:100%;min-height:60px;font-family:Orbitron,sans-serif;font-weight:900;font-size:17px;letter-spacing:4px;color:var(--bg);background:var(--or);border:0;cursor:pointer;
+  clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);animation:glow 1.2s ease-in-out infinite alternate}
+.next.on{display:block}
+@keyframes glow{from{filter:drop-shadow(0 0 4px var(--or))}to{filter:drop-shadow(0 0 16px var(--or))}}
+
+.toast{position:fixed;left:50%;top:34%;transform:translate(-50%,-50%) scale(.6);z-index:6;pointer-events:none;opacity:0;text-align:center;font-family:Orbitron,sans-serif;font-weight:900;font-size:30px;letter-spacing:4px;color:var(--gold);text-shadow:0 0 18px var(--gold),0 0 50px var(--or);white-space:nowrap}
+.toast small{display:block;font-size:12px;letter-spacing:3px;color:var(--txt);margin-top:6px}
+.toast.on{animation:toast 1.5s ease-out}
+@keyframes toast{12%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}22%{transform:translate(-50%,-50%) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-70%) scale(1)}}
+@media (max-height:640px){.streak .v{font-size:40px}.q{font-size:18.5px}.a{min-height:50px;font-size:16px}.sign{width:80px;height:80px}}
+</style>
+</head>
+<body>
+<div class="sky"></div><div class="floor"></div><div class="flash" id="flash"></div>
+<div class="toast" id="toast"></div>
+
+<div class="app" id="app">
+  <div class="hud">
+    <div class="logo">THEORY<b>//</b>GRID</div>
+    <div class="sp"></div>
+    <select class="chip" id="topicSel" aria-label="Topic"></select>
+    <button class="chip" id="mute" aria-label="Sound">SND</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="l">SCORE</div><div class="v" id="score">0</div><div class="l" id="rank">ROOKIE</div></div>
+    <div class="stat streak" id="streakBox"><div class="l">STREAK</div><div class="v" id="streak">0</div><div class="mult" id="mult">x1</div></div>
+    <div class="stat"><div class="l">BEST</div><div class="v" id="best">0</div><div class="l" id="acc">0% HIT</div></div>
+  </div>
+
+  <div class="trail" id="trail"><i id="trailFill"></i></div>
+  <div class="trailcap"><span id="trailL">0</span><span id="trailMsg">PASS LINE <b>43</b></span></div>
+
+  <div class="card" id="card">
+    <div class="topic" id="topic"></div>
+    <div class="sign" id="sign" hidden></div>
+    <h1 class="q" id="q"></h1>
+    <div class="answers" id="answers"></div>
+    <div class="why" id="why">
+      <h3>CRASHED <span id="lost"></span></h3>
+      <div class="ans"><small>CORRECT ANSWER</small><span id="right"></span></div>
+      <p id="whyText"></p>
+    </div>
+    <button class="next" id="next">NEXT &#9654;</button>
+  </div>
+</div>
+
+<script src="questions.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const KEY = "theoryGrid.v1";
+  const RANKS = [[0,"ROOKIE"],[5,"RUNNER"],[10,"RIDER"],[20,"PILOT"],[30,"ACE"],[43,"LICENSED"],[75,"LEGEND"],[100,"GRID MASTER"]];
+  const MILESTONES = {5:"5 STREAK",10:"10 STREAK",20:"20 STREAK",30:"30 STREAK",43:"PASS LINE",50:"PERFECT 50",75:"75 STREAK",100:"GRID MASTER"};
+
+  let save = { best:0, score:0, seen:0, hit:0, mute:false, topic:"ALL", miss:{} };
+  try { Object.assign(save, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
+  const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(save)); } catch (e) {} };
+
+  let streak = 0, deck = [], cur = -1, locked = false, timer = 0;
+
+  // ---- sound
+  let ac = null;
+  function tone(freq, dur, type, when, vol) {
+    if (save.mute) return;
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      if (ac.state === "suspended") ac.resume();
+      const t = ac.currentTime + (when || 0), o = ac.createOscillator(), g = ac.createGain();
+      o.type = type || "square"; o.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(vol || 0.06, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + dur);
+    } catch (e) {}
+  }
+  const sndGood = () => { const b = 440 + Math.min(streak, 30) * 18; tone(b, .09, "square"); tone(b * 1.5, .14, "square", .07); };
+  const sndBad = () => { tone(190, .18, "sawtooth", 0, .09); tone(120, .22, "sawtooth", .12, .09); tone(70, .4, "sawtooth", .26, .1); };
+  const sndMile = () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .16, "triangle", i * .09, .09));
+  const buzz = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+
+  // ---- deck
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  function refill() {
+    deck = shuffle(QUESTIONS.map((q, i) => i).filter(i => save.topic === "ALL" || QUESTIONS[i][0] === save.topic && i !== cur));
+    if (!deck.length) deck = [cur];
+  }
+
+  // ---- HUD
+  const mult = () => Math.min(10, 1 + Math.floor(streak / 5));
+  const rankFor = n => RANKS.filter(r => n >= r[0]).pop()[1];
+  function hud(pop) {
+    $("streak").textContent = streak;
+    $("best").textContent = save.best;
+    $("score").textContent = save.score.toLocaleString("en-GB");
+    $("mult").textContent = "x" + mult();
+    $("rank").textContent = rankFor(save.best);
+    $("acc").textContent = (save.seen ? Math.round(save.hit / save.seen * 100) : 0) + "% HIT";
+    const box = $("streakBox");
+    box.className = "stat streak" + (streak >= 43 ? " gold" : streak >= 10 ? " hot" : "");
+    const gold = streak >= 43, goal = gold ? Math.ceil((streak + 1) / 50) * 50 : 43, base = gold ? 43 : 0;
+    $("trail").className = "trail" + (gold ? " gold" : "");
+    $("trailFill").style.width = Math.max(0, Math.min(100, (streak - base) / (goal - base) * 100)) + "%";
+    $("trailL").textContent = gold ? "LICENSED" : streak + " / 43";
+    $("trailMsg").innerHTML = (gold ? "NEXT TARGET <b>" : "PASS LINE <b>") + goal + "</b>";
+    if (pop) { const v = $("streak"); v.classList.remove("pop"); void v.offsetWidth; v.classList.add("pop"); }
+  }
+  function fx(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+  function toast(big, small) { const t = $("toast"); t.innerHTML = big + (small ? "<small>" + small + "</small>" : ""); fx(t, "on"); }
+
+  // ---- play
+  function show() {
+    clearTimeout(timer);
+    if (!deck.length) refill();
+    cur = deck.shift();
+    const [tp, text, opts, , sign] = QUESTIONS[cur];
+    locked = false;
+    document.body.classList.remove("crash");
+    $("card").classList.remove("locked");
+    $("why").classList.remove("on"); $("next").classList.remove("on");
+    $("topic").textContent = TOPICS[tp].toUpperCase();
+    $("q").textContent = text;
+    const s = $("sign"); s.hidden = !sign; s.innerHTML = sign ? SIGNS[sign] : "";
+    const box = $("answers"); box.innerHTML = "";
+    shuffle(opts.map((t, i) => [t, i === 0])).forEach(([t, ok], i) => {
+      const b = document.createElement("button");
+      b.className = "a"; b.dataset.ok = ok ? 1 : 0;
+      b.innerHTML = '<span class="k">' + "ABCD"[i] + "</span><span></span>";
+      b.lastChild.textContent = t;
+      b.onclick = () => pick(b);
+      box.appendChild(b);
+    });
+    $("card").scrollTop = 0;
+  }
+
+  function pick(b) {
+    if (locked) return;
+    locked = true;
+    $("card").classList.add("locked");
+    const ok = b.dataset.ok === "1", q = QUESTIONS[cur];
+    const btns = [...$("answers").children];
+    btns.forEach(x => { if (x.dataset.ok === "1") x.classList.add("right"); else if (x !== b) x.classList.add("off"); });
+    save.seen++;
+    if (ok) {
+      save.hit++; streak++;
+      save.score += 100 * mult();
+      const newBest = streak > save.best;
+      if (newBest) save.best = streak;
+      if (save.miss[cur]) { save.miss[cur]--; if (!save.miss[cur]) delete save.miss[cur]; }
+      persist(); hud(true);
+      fx($("flash"), "good"); $("flash").classList.remove("bad");
+      buzz(25);
+      if (MILESTONES[streak]) { sndMile(); buzz([40, 40, 40, 40, 120]); toast(MILESTONES[streak], streak === 43 ? "THAT IS A TEST PASS" : "MULTIPLIER x" + mult()); }
+      else sndGood();
+      timer = setTimeout(show, MILESTONES[streak] ? 1300 : 650);
+    } else {
+      b.classList.add("wrong");
+      const lost = streak;
+      streak = 0;
+      save.miss[cur] = 2;                       // must be answered right twice more to clear
+      deck.splice(Math.min(deck.length, 4 + (Math.random() * 4 | 0)), 0, cur);   // comes back soon
+      persist(); hud(false);
+      document.body.classList.add("crash");
+      $("flash").classList.remove("good"); fx($("flash"), "bad"); fx($("app"), "shake");
+      buzz([220, 70, 220, 70, 320]); sndBad();
+      $("lost").textContent = lost ? "STREAK OF " + lost + " LOST" : "";
+      $("right").textContent = q[2][0];
+      $("whyText").textContent = q[3];
+      $("why").classList.add("on"); $("next").classList.add("on");
+      setTimeout(() => $("why").scrollIntoView({ behavior: "smooth", block: "nearest" }), 60);
+      setTimeout(() => $("next").scrollIntoView({ behavior: "smooth", block: "nearest" }), 120);
+    }
+  }
+
+  // ---- controls
+  $("next").onclick = show;
+  const sel = $("topicSel");
+  sel.innerHTML = '<option value="ALL">ALL TOPICS</option>' + Object.keys(TOPICS).map(k => `<option value="${k}">${TOPICS[k].toUpperCase()}</option>`).join("");
+  if (!TOPICS[save.topic]) save.topic = "ALL";
+  sel.value = save.topic;
+  sel.onchange = () => { save.topic = sel.value; persist(); cur = -1; refill(); show(); };
+  const muteBtn = $("mute");
+  const paintMute = () => { muteBtn.textContent = save.mute ? "MUTE" : "SND"; muteBtn.style.opacity = save.mute ? .5 : 1; };
+  muteBtn.onclick = () => { save.mute = !save.mute; persist(); paintMute(); if (!save.mute) tone(660, .08); };
+  document.addEventListener("keydown", e => {
+    if (e.key >= "1" && e.key <= "4") { const b = $("answers").children[e.key - 1]; b && b.click(); }
+    else if ((e.key === "Enter" || e.key === " ") && $("next").classList.contains("on")) { e.preventDefault(); show(); }
+  });
+
+  paintMute(); hud(false); refill(); show();
+  window.__grid = { get streak() { return streak; }, get cur() { return cur; }, save };
+})();
+</script>
+</body>
+</html>
