@@ -1,5 +1,5 @@
 // Offline support: serve from cache, refresh the cache in the background.
-const CACHE = "theory-grid-v3";
+const CACHE = "theory-grid-v4";
 const CORE = ["./", "index.html", "questions.js", "manifest.webmanifest", "icon-192.png", "icon-512.png",
   "fonts/orbitron-latin-wght-normal.woff2", "fonts/rajdhani-latin-500-normal.woff2",
   "fonts/rajdhani-latin-600-normal.woff2", "fonts/rajdhani-latin-700-normal.woff2"];
