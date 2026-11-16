@@ -1,0 +1,7 @@
+{
+  "appId": "io.github.joycemakes.theorygrid",
+  "appName": "Theory Grid",
+  "webDir": "www",
+  "backgroundColor": "#02060d",
+  "plugins": { "LocalNotifications": { "iconColor": "#19E6FF" } }
+}

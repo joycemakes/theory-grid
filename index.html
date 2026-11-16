@@ -12,22 +12,25 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Theory Grid">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
+@font-face{font-family:Orbitron;src:url(fonts/orbitron-latin-wght-normal.woff2) format("woff2");font-weight:400 900;font-display:swap}
+@font-face{font-family:Rajdhani;src:url(fonts/rajdhani-latin-500-normal.woff2) format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:Rajdhani;src:url(fonts/rajdhani-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:Rajdhani;src:url(fonts/rajdhani-latin-700-normal.woff2) format("woff2");font-weight:700;font-display:swap}
 :root{
   --bg:#02060d; --cy:#19e6ff; --cy2:#0b7f99; --or:#ff7a18; --red:#ff2b4a; --gr:#3dffa2; --gold:#ffd24a;
-  --txt:#d9f8ff; --dim:#6f9aa8; --panel:rgba(4,18,30,.82);
+  --txt:#d9f8ff; --dim:#6f9aa8; --panel:rgba(4,18,30,.9);
+  --t1:color-mix(in srgb,var(--cy) 13%,transparent); --t0:color-mix(in srgb,var(--cy) 4%,transparent);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--txt);font-family:Rajdhani,"Segoe UI",system-ui,sans-serif;font-weight:600;overflow:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+button{font:inherit;color:inherit}
 
-/* moving floor grid */
-.sky{position:fixed;inset:0;background:radial-gradient(120% 70% at 50% 0%,#06223a 0%,#02060d 60%);z-index:-3}
+.sky{position:fixed;inset:0;background:radial-gradient(120% 70% at 50% 0%,color-mix(in srgb,var(--cy) 16%,#02060d) 0%,#02060d 60%);z-index:-3;transition:background .6s}
 .floor{position:fixed;left:-50%;right:-50%;bottom:0;height:46vh;z-index:-2;transform:perspective(320px) rotateX(62deg);transform-origin:50% 100%;
   background-image:linear-gradient(var(--cy2) 2px,transparent 2px),linear-gradient(90deg,var(--cy2) 2px,transparent 2px);
-  background-size:56px 56px;animation:run 1.6s linear infinite;opacity:.55;
+  background-size:56px 56px;animation:run var(--spd,1.6s) linear infinite;opacity:.55;
   -webkit-mask-image:linear-gradient(transparent,#000 70%);mask-image:linear-gradient(transparent,#000 70%)}
 @keyframes run{to{background-position:0 56px}}
 body.crash .floor{background-image:linear-gradient(var(--red) 2px,transparent 2px),linear-gradient(90deg,var(--red) 2px,transparent 2px);animation-play-state:paused}
@@ -40,55 +43,54 @@ body.crash .floor{background-image:linear-gradient(var(--red) 2px,transparent 2p
 .shake{animation:shake .5s}
 @keyframes shake{10%,90%{transform:translateX(-3px)}20%,80%{transform:translateX(6px)}30%,50%,70%{transform:translateX(-10px)}40%,60%{transform:translateX(10px)}}
 
-/* HUD */
-.hud{display:flex;align-items:center;gap:10px}
-.logo{font-family:Orbitron,sans-serif;font-weight:900;font-size:15px;letter-spacing:3px;color:var(--cy);text-shadow:0 0 12px var(--cy)}
+.hud{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{font-family:Orbitron,sans-serif;font-weight:900;font-size:14px;letter-spacing:2px;color:var(--cy);text-shadow:0 0 12px var(--cy);white-space:nowrap}
 .logo b{color:var(--or);text-shadow:0 0 12px var(--or)}
 .sp{flex:1}
-.chip{font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--cy);border:1px solid var(--cy2);background:rgba(25,230,255,.06);padding:7px 9px;border-radius:3px;min-height:34px;display:flex;align-items:center}
+.chip{font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--cy);border:1px solid var(--cy2);background:var(--t0);padding:7px 9px;border-radius:3px;min-height:34px;display:flex;align-items:center}
 button.chip{cursor:pointer}
-.hud{min-width:0}.logo{white-space:nowrap}
-select.chip{appearance:none;-webkit-appearance:none;min-width:0;flex:0 1 128px;width:128px;text-overflow:ellipsis;font-weight:700;outline:none}
+select.chip{appearance:none;-webkit-appearance:none;min-width:0;flex:0 1 112px;width:112px;letter-spacing:.3px;padding:7px 6px;text-overflow:ellipsis;font-weight:700;outline:none}
 select.chip option{background:#03121d;color:var(--txt)}
 
 .stats{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:8px;margin-top:10px;align-items:end}
-.stat{text-align:center}
+.stat{text-align:center;position:relative}
 .stat .l{font-family:Orbitron,sans-serif;font-size:9px;letter-spacing:2px;color:var(--dim)}
 .stat .v{font-family:Orbitron,sans-serif;font-weight:700;font-size:20px;color:var(--txt)}
-.streak .v{font-size:54px;font-weight:700;line-height:1;color:var(--cy);text-shadow:0 0 18px var(--cy),0 0 40px rgba(25,230,255,.5)}
-.streak.hot .v{color:var(--or);text-shadow:0 0 18px var(--or),0 0 40px rgba(255,122,24,.6)}
-.streak.gold .v{color:var(--gold);text-shadow:0 0 18px var(--gold),0 0 44px rgba(255,210,74,.7)}
+.streak .v{font-size:54px;font-weight:700;line-height:1;color:var(--cy);text-shadow:0 0 18px var(--cy),0 0 40px color-mix(in srgb,var(--cy) 50%,transparent);transition:color .5s}
 .pop{animation:pop .3s}
 @keyframes pop{40%{transform:scale(1.28)}}
 .mult{display:inline-block;font-family:Orbitron,sans-serif;font-size:11px;color:var(--bg);background:var(--or);padding:1px 6px;border-radius:2px;box-shadow:0 0 10px var(--or);margin-top:2px}
+.shields{display:inline-block;margin-left:6px;font-size:13px;letter-spacing:2px;color:var(--gr);text-shadow:0 0 10px var(--gr);vertical-align:middle}
+.gain{position:absolute;left:0;right:0;top:-6px;font-family:Orbitron,sans-serif;font-weight:700;font-size:15px;color:var(--gr);text-shadow:0 0 10px var(--gr);opacity:0;pointer-events:none}
+.gain.on{animation:gain .8s ease-out}
+@keyframes gain{0%{opacity:1;transform:translateY(8px)}100%{opacity:0;transform:translateY(-16px)}}
 
-/* trail to the pass line */
-.trail{position:relative;height:16px;margin:10px 2px 2px;border:1px solid var(--cy2);border-radius:2px;background:rgba(25,230,255,.05);overflow:visible}
+.trail{position:relative;height:16px;margin:10px 2px 2px;border:1px solid var(--cy2);border-radius:2px;background:var(--t0)}
 .trail i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,transparent,var(--cy));box-shadow:0 0 14px var(--cy);transition:width .35s cubic-bezier(.2,.9,.3,1)}
 .trail i::after{content:"";position:absolute;right:-3px;top:-4px;bottom:-4px;width:8px;background:#fff;border-radius:2px;box-shadow:0 0 12px #fff,0 0 22px var(--cy)}
-.trail.gold i{background:linear-gradient(90deg,transparent,var(--gold));box-shadow:0 0 14px var(--gold)}
-.trailcap{display:flex;justify-content:space-between;font-family:Orbitron,sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--dim);margin:4px 2px 0}
-.trailcap b{color:var(--cy);font-weight:700}
+.cap{display:flex;justify-content:space-between;gap:8px;font-family:Orbitron,sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--dim);margin:4px 2px 0}
+.cap b{color:var(--cy);font-weight:700}
+.cap .hot{color:var(--or)} .cap .bad{color:var(--red)} .cap .done{color:var(--gr)}
 
-/* card */
 .card{flex:1;min-height:0;display:flex;flex-direction:column;margin-top:10px;overflow-y:auto;scrollbar-width:none}
 .card::-webkit-scrollbar{display:none}
-.topic{font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:2.5px;color:var(--or);margin-bottom:6px}
+.topic{font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:2.5px;color:var(--or);margin-bottom:5px}
 .topic .re{margin-left:8px;padding:1px 6px;color:var(--bg);background:var(--red);box-shadow:0 0 10px var(--red);border-radius:2px;letter-spacing:1.5px}
-.install{display:none;margin-top:8px;width:100%;min-height:40px;font-family:Orbitron,sans-serif;font-weight:700;font-size:11px;letter-spacing:2.5px;color:var(--cy);background:rgba(25,230,255,.08);border:1px dashed var(--cy);border-radius:3px;cursor:pointer}
+.clock{height:3px;background:var(--t1);margin-bottom:8px}
+.clock i{display:block;height:100%;width:100%;background:var(--gr);box-shadow:0 0 8px var(--gr)}
+.install{display:none;margin-top:8px;width:100%;min-height:40px;font-family:Orbitron,sans-serif;font-weight:700;font-size:11px;letter-spacing:2.5px;color:var(--cy);background:var(--t1);border:1px dashed var(--cy);border-radius:3px;cursor:pointer}
 .install.on{display:block}
-.q{font-size:21px;line-height:1.22;font-weight:700;color:#fff;margin:0 0 10px;text-shadow:0 0 14px rgba(25,230,255,.25)}
-.sign{width:104px;height:104px;margin:0 auto 10px;filter:drop-shadow(0 0 14px rgba(25,230,255,.45))}
+.q{font-size:21px;line-height:1.22;font-weight:700;color:#fff;margin:0 0 10px;text-shadow:0 0 14px color-mix(in srgb,var(--cy) 25%,transparent)}
+.sign{width:104px;height:104px;margin:0 auto 10px;filter:drop-shadow(0 0 14px color-mix(in srgb,var(--cy) 45%,transparent))}
 .sign svg{width:100%;height:100%}
 .answers{display:grid;gap:9px;margin-top:auto}
 .a{position:relative;display:flex;align-items:center;gap:12px;width:100%;min-height:58px;padding:10px 14px 10px 10px;text-align:left;
-  font:inherit;font-size:17px;line-height:1.18;color:var(--txt);background:linear-gradient(90deg,rgba(25,230,255,.13),rgba(25,230,255,.03));
+  font-size:17px;line-height:1.18;color:var(--txt);background:linear-gradient(90deg,var(--t1),var(--t0));
   border:1.5px solid var(--cy);cursor:pointer;
   clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
-  box-shadow:inset 0 0 18px rgba(25,230,255,.12);transition:transform .08s,background .15s}
-.a::before{content:"";position:absolute;right:0;top:0;width:20px;height:1.5px;background:var(--cy);transform-origin:100% 0;transform:rotate(45deg) translate(6px,-1px)}
+  box-shadow:inset 0 0 18px var(--t1);transition:transform .08s,background .15s,border-color .5s}
 .a:active{transform:scale(.98)}
-.a .k{flex:0 0 34px;height:34px;display:grid;place-items:center;font-family:Orbitron,sans-serif;font-weight:700;font-size:14px;color:var(--bg);background:var(--cy);box-shadow:0 0 12px var(--cy);clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%)}
+.a .k{flex:0 0 34px;height:34px;display:grid;place-items:center;font-family:Orbitron,sans-serif;font-weight:700;font-size:14px;color:var(--bg);background:var(--cy);box-shadow:0 0 12px var(--cy);clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%);transition:background .5s}
 .a.right{border-color:var(--gr);color:#fff;background:linear-gradient(90deg,rgba(61,255,162,.35),rgba(61,255,162,.08));box-shadow:0 0 22px rgba(61,255,162,.45),inset 0 0 18px rgba(61,255,162,.25)}
 .a.right .k{background:var(--gr);box-shadow:0 0 12px var(--gr)}
 .a.wrong{border-color:var(--red);color:#fff;background:linear-gradient(90deg,rgba(255,43,74,.45),rgba(255,43,74,.1));box-shadow:0 0 22px rgba(255,43,74,.55)}
@@ -96,25 +98,47 @@ select.chip option{background:#03121d;color:var(--txt)}
 .a.off{opacity:.3}
 .locked .a{pointer-events:none}
 
-/* why panel */
 .why{display:none;margin-top:10px;padding:12px 14px;border:1.5px solid var(--red);background:var(--panel);box-shadow:0 0 24px rgba(255,43,74,.3);
   clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%)}
 .why.on{display:block;animation:rise .25s ease-out}
 @keyframes rise{from{transform:translateY(14px);opacity:0}}
 .why h3{margin:0 0 4px;font-family:Orbitron,sans-serif;font-size:13px;letter-spacing:2px;color:var(--red);text-shadow:0 0 10px var(--red)}
-.why h3 span{color:var(--dim);font-size:10px;margin-left:6px}
+.why h3 span{color:var(--dim);font-size:10px;margin-left:6px;text-shadow:none}
+.why.saved{border-color:var(--gr);box-shadow:0 0 24px rgba(61,255,162,.3)}
+.why.saved h3{color:var(--gr);text-shadow:0 0 10px var(--gr)}
 .why .ans{color:var(--gr);font-size:17px;font-weight:700;margin-bottom:6px}
 .why .ans small{display:block;font-family:Orbitron,sans-serif;font-size:9px;letter-spacing:2px;color:var(--dim)}
 .why p{margin:0;font-size:16.5px;line-height:1.3;color:var(--txt);font-weight:500}
-.next{display:none;margin-top:10px;width:100%;min-height:60px;font-family:Orbitron,sans-serif;font-weight:900;font-size:17px;letter-spacing:4px;color:var(--bg);background:var(--or);border:0;cursor:pointer;
+.next{display:none;margin-top:10px;width:100%;min-height:60px;font-family:Orbitron,sans-serif;font-weight:900;font-size:17px;letter-spacing:4px;color:var(--bg);background:var(--or);border:0;cursor:pointer;flex-shrink:0;
   clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);animation:glow 1.2s ease-in-out infinite alternate}
 .next.on{display:block}
 @keyframes glow{from{filter:drop-shadow(0 0 4px var(--or))}to{filter:drop-shadow(0 0 16px var(--or))}}
 
-.toast{position:fixed;left:50%;top:34%;transform:translate(-50%,-50%) scale(.6);z-index:6;pointer-events:none;opacity:0;text-align:center;font-family:Orbitron,sans-serif;font-weight:900;font-size:30px;letter-spacing:4px;color:var(--gold);text-shadow:0 0 18px var(--gold),0 0 50px var(--or);white-space:nowrap}
+.toast{position:fixed;left:50%;top:34%;transform:translate(-50%,-50%) scale(.6);z-index:6;pointer-events:none;opacity:0;text-align:center;font-family:Orbitron,sans-serif;font-weight:900;font-size:28px;letter-spacing:4px;color:var(--gold);text-shadow:0 0 18px var(--gold),0 0 50px var(--or);white-space:nowrap}
 .toast small{display:block;font-size:12px;letter-spacing:3px;color:var(--txt);margin-top:6px}
 .toast.on{animation:toast 1.5s ease-out}
 @keyframes toast{12%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}22%{transform:translate(-50%,-50%) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-70%) scale(1)}}
+
+/* menu */
+.menu{position:fixed;inset:0;z-index:8;display:none;background:rgba(2,6,13,.96);overflow-y:auto;padding:calc(14px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))}
+.menu.on{display:block}
+.menu .in{max-width:528px;margin:0 auto}
+.menu h2{font-family:Orbitron,sans-serif;font-weight:900;font-size:16px;letter-spacing:4px;color:var(--cy);text-shadow:0 0 12px var(--cy);margin:0 0 12px;display:flex;justify-content:space-between;align-items:center}
+.menu h4{font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:2.5px;color:var(--or);margin:18px 0 8px}
+.nums{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.nums div{border:1px solid var(--cy2);background:var(--t0);padding:8px 4px;text-align:center}
+.nums b{display:block;font-family:Orbitron,sans-serif;font-size:19px;color:#fff}
+.nums span{font-family:Orbitron,sans-serif;font-size:8px;letter-spacing:1.5px;color:var(--dim)}
+.tp{display:grid;grid-template-columns:1fr 46px;gap:2px 8px;align-items:center;margin-bottom:9px;font-size:15px}
+.tp em{font-style:normal;font-family:Orbitron,sans-serif;font-size:11px;text-align:right;color:var(--dim)}
+.tp .bar{grid-column:1/3;height:5px;background:var(--t1)}
+.tp .bar i{display:block;height:100%;background:var(--cy);box-shadow:0 0 8px var(--cy)}
+.opt{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:54px;margin-bottom:8px;padding:8px 14px;background:var(--t0);border:1.5px solid var(--cy2);cursor:pointer;text-align:left;font-size:17px}
+.opt small{display:block;font-size:13px;color:var(--dim);font-weight:500}
+.opt b{font-family:Orbitron,sans-serif;font-size:12px;letter-spacing:2px;color:var(--dim);white-space:nowrap}
+.opt.on{border-color:var(--gr)} .opt.on b{color:var(--gr);text-shadow:0 0 10px var(--gr)}
+.opt.danger{border-color:#5a1522;color:#ff8ea0}
+.note{font-size:13.5px;color:var(--dim);font-weight:500;line-height:1.3;margin:4px 0 0}
 @media (max-height:640px){.streak .v{font-size:40px}.q{font-size:18.5px}.a{min-height:50px;font-size:16px}.sign{width:80px;height:80px}}
 </style>
 </head>
@@ -127,27 +151,28 @@ select.chip option{background:#03121d;color:var(--txt)}
     <div class="logo">THEORY<b>//</b>GRID</div>
     <div class="sp"></div>
     <select class="chip" id="topicSel" aria-label="Topic"></select>
-    <button class="chip" id="mute" aria-label="Sound">SND</button>
+    <button class="chip" id="menuBtn" aria-label="Stats and settings">STATS</button>
   </div>
-
   <button class="install" id="install">&#11015; INSTALL APP</button>
 
   <div class="stats">
-    <div class="stat"><div class="l">SCORE</div><div class="v" id="score">0</div><div class="l" id="rank">ROOKIE</div></div>
-    <div class="stat streak" id="streakBox"><div class="l">STREAK</div><div class="v" id="streak">0</div><div class="mult" id="mult">x1</div></div>
+    <div class="stat"><div class="gain" id="gain"></div><div class="l">SCORE</div><div class="v" id="score">0</div><div class="l" id="rank">ROOKIE</div></div>
+    <div class="stat streak"><div class="l">STREAK</div><div class="v" id="streak">0</div><div class="mult" id="mult">x1</div><span class="shields" id="shields"></span></div>
     <div class="stat"><div class="l">BEST</div><div class="v" id="best">0</div><div class="l" id="acc">0% HIT</div></div>
   </div>
 
-  <div class="trail" id="trail"><i id="trailFill"></i></div>
-  <div class="trailcap"><span id="trailL">0</span><span id="weak" style="color:var(--red)"></span><span id="trailMsg">PASS LINE <b>43</b></span></div>
+  <div class="trail"><i id="trailFill"></i></div>
+  <div class="cap"><span id="trailL">0</span><span id="trailMsg"></span></div>
+  <div class="cap"><span id="daily"></span><span id="weak" class="bad"></span></div>
 
   <div class="card" id="card">
     <div class="topic" id="topic"></div>
+    <div class="clock"><i id="clock"></i></div>
     <div class="sign" id="sign" hidden></div>
     <h1 class="q" id="q"></h1>
     <div class="answers" id="answers"></div>
     <div class="why" id="why">
-      <h3>CRASHED <span id="lost"></span></h3>
+      <h3><span id="whyHead" style="color:inherit;font-size:inherit;margin:0;text-shadow:inherit">CRASHED</span> <span id="lost"></span></h3>
       <div class="ans"><small>CORRECT ANSWER</small><span id="right"></span></div>
       <p id="whyText"></p>
     </div>
@@ -155,24 +180,56 @@ select.chip option{background:#03121d;color:var(--txt)}
   </div>
 </div>
 
+<div class="menu" id="menu"><div class="in">
+  <h2>STATS <button class="chip" id="menuClose">CLOSE &#10005;</button></h2>
+  <div class="nums">
+    <div><b id="nSeen">0</b><span>ANSWERED</span></div>
+    <div><b id="nAcc">0%</b><span>HIT RATE</span></div>
+    <div><b id="nBest">0</b><span>BEST</span></div>
+    <div><b id="nDays">0</b><span>DAY STREAK</span></div>
+  </div>
+  <h4>TOPICS, WEAKEST FIRST</h4>
+  <div id="tpList"></div>
+  <h4>SETTINGS</h4>
+  <button class="opt" id="optRemind"><span>Daily reminder<small id="remindNote">A notification at 7 pm if you have not hit your goal</small></span><b></b></button>
+  <button class="opt" id="optSound"><span>Sound</span><b></b></button>
+  <button class="opt" id="optClock"><span>Speed bonus<small>Extra points for answering quickly. Never costs you the streak.</small></span><b></b></button>
+  <button class="opt danger" id="optReset"><span id="resetTxt">Wipe all progress</span><b></b></button>
+  <h4>HOW IT WORKS</h4>
+  <p class="note">Every 5 in a row raises your multiplier. Every 10 in a row earns a shield (two at most): a shield absorbs one wrong answer and keeps your streak. Questions you miss come back for a rematch until you get them right twice. Hit 30 right answers in a day to build a day streak. 43 in a row is a test pass.</p>
+  <p class="note">Questions are original, written from The Highway Code (Open Government Licence v3.0). Not an official DVSA product.</p>
+</div></div>
+
 <script src="questions.js"></script>
 <script>
 (() => {
   const $ = id => document.getElementById(id);
-  const KEY = "theoryGrid.v1";
+  const KEY = "theoryGrid.v1", GOAL = 30, CLOCK_MS = 12000, REMIND_HOUR = 19;
   const RANKS = [[0,"ROOKIE"],[5,"RUNNER"],[10,"RIDER"],[20,"PILOT"],[30,"ACE"],[43,"LICENSED"],[75,"LEGEND"],[100,"GRID MASTER"]];
-  const MILESTONES = {5:"5 STREAK",10:"10 STREAK",20:"20 STREAK",30:"30 STREAK",43:"PASS LINE",50:"PERFECT 50",75:"75 STREAK",100:"GRID MASTER"};
+  const MILESTONES = {5:"5 STREAK",10:"SECTOR 2",20:"SECTOR 3",30:"SECTOR 4",43:"PASS LINE",50:"PERFECT 50",75:"75 STREAK",100:"GRID MASTER"};
+  const SECTORS = [["#19e6ff","#0b7f99"],["#ff4df0","#8a2484"],["#6dff5e","#2c8a30"],["#a88bff","#51409c"],["#ffd24a","#96771f"]];
+  const native = !!(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform());
+  const LN = native ? Capacitor.Plugins.LocalNotifications : null;
 
-  let save = { best:0, score:0, seen:0, hit:0, mute:false, topic:"ALL", miss:{} };
+  let save = { best:0, score:0, seen:0, hit:0, mute:false, clock:true, topic:"ALL", miss:{}, streak:0, shields:0, tp:{},
+               day:"", today:0, dayStreak:0, goalDay:"", remind:false, notified:"" };
   try { Object.assign(save, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
   const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(save)); } catch (e) {} };
 
-  // misses are keyed by question text, so adding questions later does not scramble them
   const texts = new Set(QUESTIONS.map(q => q[1]));
   Object.keys(save.miss).forEach(k => { if (!texts.has(k)) delete save.miss[k]; });
 
-  let streak = 0, deck = [], cur = -1, locked = false, timer = 0, recent = [];
-  const weakHud = () => { const n = Object.keys(save.miss).length; $("weak").textContent = n ? n + " TO REMATCH" : ""; };
+  let streak = save.streak || 0, deck = [], cur = -1, locked = false, timer = 0, recent = [], shownAt = 0;
+
+  // ---- days
+  const dayKey = d => { d = d || new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+  const yesterday = () => { const d = new Date(); d.setDate(d.getDate() - 1); return dayKey(d); };
+  function rollDay() {
+    const t = dayKey();
+    if (save.day === t) return;
+    if (save.goalDay !== t && save.goalDay !== yesterday()) save.dayStreak = 0;
+    save.day = t; save.today = 0; persist();
+  }
 
   // ---- sound
   let ac = null;
@@ -189,13 +246,65 @@ select.chip option{background:#03121d;color:var(--txt)}
   }
   const sndGood = () => { const b = 440 + Math.min(streak, 30) * 18; tone(b, .09, "square"); tone(b * 1.5, .14, "square", .07); };
   const sndBad = () => { tone(190, .18, "sawtooth", 0, .09); tone(120, .22, "sawtooth", .12, .09); tone(70, .4, "sawtooth", .26, .1); };
+  const sndShield = () => { tone(880, .12, "triangle", 0, .09); tone(440, .3, "triangle", .1, .09); };
   const sndMile = () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .16, "triangle", i * .09, .09));
   const buzz = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
 
+  // ---- reminders
+  const remindBody = () => save.dayStreak
+    ? "Your " + save.dayStreak + "-day streak is on the line. " + GOAL + " right answers keeps it alive."
+    : "Time for a run on the grid. " + GOAL + " right answers starts a day streak.";
+  function webNotify(title, body) {
+    try {
+      if (!("Notification" in window) || Notification.permission !== "granted") return;
+      const o = { body, icon: "icon-192.png", badge: "icon-192.png", tag: "theory-grid" };
+      const viaPage = () => new Notification(title, o);
+      if (navigator.serviceWorker) navigator.serviceWorker.getRegistration().then(r => r ? r.showNotification(title, o) : viaPage()).catch(viaPage);
+      else viaPage();
+    } catch (e) {}
+  }
+  // Phone app: queue one notification for each of the next 7 evenings, skipping today once the goal is met.
+  async function planReminders() {
+    if (!native || !LN) return;
+    try {
+      await LN.cancel({ notifications: [1, 2, 3, 4, 5, 6, 7].map(id => ({ id })) });
+      if (!save.remind) return;
+      const list = [], now = Date.now();
+      for (let d = 0; d < 7; d++) {
+        const at = new Date(); at.setDate(at.getDate() + d); at.setHours(REMIND_HOUR, 0, 0, 0);
+        if (at.getTime() <= now || (d === 0 && save.today >= GOAL)) continue;
+        list.push({ id: d + 1, title: "Theory Grid", body: remindBody(), schedule: { at, allowWhileIdle: true } });
+      }
+      if (list.length) await LN.schedule({ notifications: list });
+    } catch (e) {}
+  }
+  // Desktop and browser: fires while the app is open, including minimised or in the background.
+  function webReminderTick() {
+    if (native || !save.remind) return;
+    rollDay();
+    const t = dayKey();
+    if (new Date().getHours() >= REMIND_HOUR && save.today < GOAL && save.notified !== t) {
+      save.notified = t; persist(); webNotify("Theory Grid", remindBody());
+    }
+  }
+  async function toggleRemind() {
+    if (save.remind) { save.remind = false; persist(); planReminders(); return paintMenu(); }
+    let ok = false;
+    try {
+      if (native) ok = (await LN.requestPermissions()).display === "granted";
+      else if ("Notification" in window) ok = (await Notification.requestPermission()) === "granted";
+    } catch (e) {}
+    save.remind = ok; persist(); paintMenu();
+    if (!ok) { $("remindNote").textContent = "Notifications are blocked. Allow them in your settings, then try again."; return; }
+    if (native) { planReminders(); try { LN.schedule({ notifications: [{ id: 99, title: "Reminders on", body: "Theory Grid will nudge you at 7 pm if your daily goal is not done.", schedule: { at: new Date(Date.now() + 1500) } }] }); } catch (e) {} }
+    else webNotify("Reminders on", "Theory Grid will nudge you at 7 pm if your daily goal is not done.");
+  }
+
   // ---- deck
   const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const inTopic = i => save.topic === "ALL" || QUESTIONS[i][0] === save.topic;
   function refill() {
-    deck = shuffle(QUESTIONS.map((q, i) => i).filter(i => save.topic === "ALL" || QUESTIONS[i][0] === save.topic && i !== cur));
+    deck = shuffle(QUESTIONS.map((q, i) => i).filter(i => inTopic(i) && i !== cur));
     if (!deck.length) deck = [cur];
   }
 
@@ -203,20 +312,25 @@ select.chip option{background:#03121d;color:var(--txt)}
   const mult = () => Math.min(10, 1 + Math.floor(streak / 5));
   const rankFor = n => RANKS.filter(r => n >= r[0]).pop()[1];
   function hud(pop) {
+    const sec = SECTORS[streak >= 43 ? 4 : Math.min(3, Math.floor(streak / 10))], rs = document.documentElement.style;
+    rs.setProperty("--cy", sec[0]); rs.setProperty("--cy2", sec[1]);
+    rs.setProperty("--spd", Math.max(.55, 1.6 - streak * .025) + "s");
     $("streak").textContent = streak;
     $("best").textContent = save.best;
     $("score").textContent = save.score.toLocaleString("en-GB");
     $("mult").textContent = "x" + mult();
+    $("shields").textContent = "◆".repeat(save.shields);
     $("rank").textContent = rankFor(save.best);
     $("acc").textContent = (save.seen ? Math.round(save.hit / save.seen * 100) : 0) + "% HIT";
-    const box = $("streakBox");
-    box.className = "stat streak" + (streak >= 43 ? " gold" : streak >= 10 ? " hot" : "");
     const gold = streak >= 43, goal = gold ? Math.ceil((streak + 1) / 50) * 50 : 43, base = gold ? 43 : 0;
-    $("trail").className = "trail" + (gold ? " gold" : "");
     $("trailFill").style.width = Math.max(0, Math.min(100, (streak - base) / (goal - base) * 100)) + "%";
     $("trailL").textContent = gold ? "LICENSED" : streak + " / 43";
     $("trailMsg").innerHTML = (gold ? "NEXT TARGET <b>" : "PASS LINE <b>") + goal + "</b>";
-    if (pop) { const v = $("streak"); v.classList.remove("pop"); void v.offsetWidth; v.classList.add("pop"); }
+    const d = $("daily"), done = save.today >= GOAL;
+    d.className = done ? "done" : "";
+    d.innerHTML = (done ? "DAILY GOAL DONE" : "TODAY " + save.today + "/" + GOAL) + (save.dayStreak ? ' &middot; <span class="hot">DAY ' + save.dayStreak + "</span>" : "");
+    const n = Object.keys(save.miss).length; $("weak").textContent = n ? n + " TO REMATCH" : "";
+    if (pop) fx($("streak"), "pop");
   }
   function fx(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
   function toast(big, small) { const t = $("toast"); t.innerHTML = big + (small ? "<small>" + small + "</small>" : ""); fx(t, "on"); }
@@ -224,10 +338,11 @@ select.chip option{background:#03121d;color:var(--txt)}
   // ---- play
   function show() {
     clearTimeout(timer);
+    rollDay();
     if (!deck.length) refill();
     // Bias towards questions you have got wrong: about half the time, while any are
     // outstanding, the next question is one of them (the more misses, the likelier).
-    const weak = QUESTIONS.map((q, i) => i).filter(i => save.miss[QUESTIONS[i][1]] && !recent.includes(i) && (save.topic === "ALL" || QUESTIONS[i][0] === save.topic));
+    const weak = QUESTIONS.map((q, i) => i).filter(i => save.miss[QUESTIONS[i][1]] && !recent.includes(i) && inTopic(i));
     let retry = false;
     if (weak.length && Math.random() < 0.5) {
       let r = Math.random() * weak.reduce((s, i) => s + save.miss[QUESTIONS[i][1]], 0);
@@ -246,7 +361,6 @@ select.chip option{background:#03121d;color:var(--txt)}
     $("card").classList.remove("locked");
     $("why").classList.remove("on"); $("next").classList.remove("on");
     $("topic").innerHTML = TOPICS[tp].toUpperCase() + (retry ? ' <b class="re">REMATCH</b>' : "");
-    weakHud();
     $("q").textContent = text;
     const s = $("sign"); s.hidden = !sign; s.innerHTML = sign ? SIGNS[sign] : "";
     const box = $("answers"); box.innerHTML = "";
@@ -259,45 +373,88 @@ select.chip option{background:#03121d;color:var(--txt)}
       box.appendChild(b);
     });
     $("card").scrollTop = 0;
+    hud(false);
+    // speed bonus clock
+    const c = $("clock");
+    c.parentNode.style.visibility = save.clock ? "visible" : "hidden";
+    c.style.transition = "none"; c.style.width = "100%"; void c.offsetWidth;
+    if (save.clock) { c.style.transition = "width " + CLOCK_MS + "ms linear"; c.style.width = "0%"; }
+    shownAt = performance.now();
   }
 
   function pick(b) {
     if (locked) return;
     locked = true;
+    const el = performance.now() - shownAt;
+    const c = $("clock"); c.style.width = getComputedStyle(c).width; c.style.transition = "none";
     $("card").classList.add("locked");
     const ok = b.dataset.ok === "1", q = QUESTIONS[cur];
-    const btns = [...$("answers").children];
-    btns.forEach(x => { if (x.dataset.ok === "1") x.classList.add("right"); else if (x !== b) x.classList.add("off"); });
+    [...$("answers").children].forEach(x => { if (x.dataset.ok === "1") x.classList.add("right"); else if (x !== b) x.classList.add("off"); });
     save.seen++;
+    const tp = save.tp[q[0]] = save.tp[q[0]] || [0, 0]; tp[1]++;
     if (ok) {
-      save.hit++; streak++;
-      save.score += 100 * mult();
-      const newBest = streak > save.best;
-      if (newBest) save.best = streak;
+      save.hit++; tp[0]++; streak++; save.today++;
+      const base = 100 * mult(), bonus = save.clock ? Math.round(base * Math.max(0, 1 - el / CLOCK_MS) / 10) * 10 : 0;
+      save.score += base + bonus;
+      $("gain").textContent = "+" + (base + bonus); fx($("gain"), "on");
+      if (streak > save.best) save.best = streak;
       if (save.miss[q[1]]) { save.miss[q[1]]--; if (!save.miss[q[1]]) delete save.miss[q[1]]; }
-      persist(); hud(true);
-      fx($("flash"), "good"); $("flash").classList.remove("bad");
+      let big = MILESTONES[streak], small = big ? (streak === 43 ? "THAT IS A TEST PASS" : "MULTIPLIER x" + mult()) : "";
+      if (streak % 10 === 0 && save.shields < 2) { save.shields++; small = "SHIELD EARNED"; big = big || streak + " STREAK"; }
+      if (save.today === GOAL) {
+        save.dayStreak = (save.goalDay === yesterday() ? save.dayStreak : 0) + 1; save.goalDay = dayKey();
+        big = "DAILY GOAL"; small = "DAY STREAK " + save.dayStreak; planReminders();
+      }
+      save.streak = streak; persist(); hud(true);
+      $("flash").classList.remove("bad"); fx($("flash"), "good");
       buzz(25);
-      if (MILESTONES[streak]) { sndMile(); buzz([40, 40, 40, 40, 120]); toast(MILESTONES[streak], streak === 43 ? "THAT IS A TEST PASS" : "MULTIPLIER x" + mult()); }
-      else sndGood();
-      timer = setTimeout(show, MILESTONES[streak] ? 1300 : 650);
+      if (big) { sndMile(); buzz([40, 40, 40, 40, 120]); toast(big, small); } else sndGood();
+      timer = setTimeout(show, big ? 1300 : 650);
     } else {
       b.classList.add("wrong");
-      const lost = streak;
-      streak = 0;
+      const lost = streak, saved = save.shields > 0 && streak > 0;
+      if (saved) save.shields--; else { streak = 0; save.shields = 0; }
       save.miss[q[1]] = Math.min(4, (save.miss[q[1]] || 0) + 2);   // each miss needs two right answers to clear
-      persist(); hud(false);
+      save.streak = streak; persist(); hud(false);
       document.body.classList.add("crash");
       $("flash").classList.remove("good"); fx($("flash"), "bad"); fx($("app"), "shake");
-      buzz([220, 70, 220, 70, 320]); sndBad();
-      $("lost").textContent = lost ? "STREAK OF " + lost + " LOST" : "";
+      buzz([220, 70, 220, 70, 320]); if (saved) sndShield(); else sndBad();
+      $("why").classList.toggle("saved", saved);
+      $("whyHead").textContent = saved ? "SHIELD BROKEN" : "CRASHED";
+      $("lost").textContent = saved ? "STREAK OF " + lost + " SAVED" : lost ? "STREAK OF " + lost + " LOST" : "";
       $("right").textContent = q[2][0];
       $("whyText").textContent = q[3];
       $("why").classList.add("on"); $("next").classList.add("on");
-      setTimeout(() => $("why").scrollIntoView({ behavior: "smooth", block: "nearest" }), 60);
-      setTimeout(() => $("next").scrollIntoView({ behavior: "smooth", block: "nearest" }), 120);
+      setTimeout(() => $("next").scrollIntoView({ behavior: "smooth", block: "nearest" }), 80);
     }
   }
+
+  // ---- menu
+  function paintMenu() {
+    $("nSeen").textContent = save.seen;
+    $("nAcc").textContent = (save.seen ? Math.round(save.hit / save.seen * 100) : 0) + "%";
+    $("nBest").textContent = save.best; $("nDays").textContent = save.dayStreak;
+    const rows = Object.keys(TOPICS).map(k => { const t = save.tp[k] || [0, 0]; return [k, t[1] ? t[0] / t[1] : -1, t[1]]; })
+      .sort((a, b) => (a[1] < 0) - (b[1] < 0) || a[1] - b[1]);
+    $("tpList").innerHTML = rows.map(([k, p, n]) => '<div class="tp"><span>' + TOPICS[k] + "</span><em>" + (n ? Math.round(p * 100) + "%" : "NEW") +
+      '</em><div class="bar"><i style="width:' + (n ? Math.round(p * 100) : 0) + "%;" + (n && p < .7 ? "background:var(--red);box-shadow:0 0 8px var(--red)" : "") + '"></i></div></div>').join("");
+    const set = (id, on) => { const o = $(id); o.classList.toggle("on", on); o.lastElementChild.textContent = on ? "ON" : "OFF"; };
+    set("optRemind", save.remind); set("optSound", !save.mute); set("optClock", save.clock);
+    $("remindNote").textContent = native ? "A notification at 7 pm if you have not hit your goal" : "A desktop notification at 7 pm if your goal is not done. Works while Theory Grid is open or minimised.";
+    $("resetTxt").textContent = "Wipe all progress"; wipeArmed = false;
+  }
+  let wipeArmed = false;
+  $("menuBtn").onclick = () => { paintMenu(); $("menu").classList.add("on"); };
+  $("menuClose").onclick = () => { $("menu").classList.remove("on"); hud(false); };
+  $("optRemind").onclick = toggleRemind;
+  $("optSound").onclick = () => { save.mute = !save.mute; persist(); paintMenu(); if (!save.mute) tone(660, .08); };
+  $("optClock").onclick = () => { save.clock = !save.clock; persist(); paintMenu(); $("clock").parentNode.style.visibility = save.clock ? "visible" : "hidden"; };
+  $("optReset").onclick = () => {
+    if (!wipeArmed) { wipeArmed = true; $("resetTxt").textContent = "Tap again to wipe everything"; return; }
+    const keep = { mute: save.mute, clock: save.clock, remind: save.remind, topic: save.topic };
+    try { localStorage.setItem(KEY, JSON.stringify(keep)); } catch (e) {}
+    location.reload();
+  };
 
   // ---- controls
   $("next").onclick = show;
@@ -305,26 +462,27 @@ select.chip option{background:#03121d;color:var(--txt)}
   sel.innerHTML = '<option value="ALL">ALL TOPICS</option>' + Object.keys(TOPICS).map(k => `<option value="${k}">${TOPICS[k].toUpperCase()}</option>`).join("");
   if (!TOPICS[save.topic]) save.topic = "ALL";
   sel.value = save.topic;
-  sel.onchange = () => { save.topic = sel.value; persist(); cur = -1; refill(); show(); };
-  const muteBtn = $("mute");
-  const paintMute = () => { muteBtn.textContent = save.mute ? "MUTE" : "SND"; muteBtn.style.opacity = save.mute ? .5 : 1; };
-  muteBtn.onclick = () => { save.mute = !save.mute; persist(); paintMute(); if (!save.mute) tone(660, .08); };
+  sel.onchange = () => { save.topic = sel.value; persist(); cur = -1; recent = []; refill(); show(); };
   document.addEventListener("keydown", e => {
+    if ($("menu").classList.contains("on")) { if (e.key === "Escape") $("menuClose").click(); return; }
     if (e.key >= "1" && e.key <= "4") { const b = $("answers").children[e.key - 1]; b && b.click(); }
     else if ((e.key === "Enter" || e.key === " ") && $("next").classList.contains("on")) { e.preventDefault(); show(); }
   });
 
-  // ---- installable app
-  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
-  const inst = $("install"), standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
-  let deferred = null;
-  addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; inst.classList.add("on"); });
-  addEventListener("appinstalled", () => inst.classList.remove("on"));
-  if (!standalone && /iphone|ipad|ipod/i.test(navigator.userAgent)) { inst.textContent = "INSTALL: TAP SHARE, THEN ADD TO HOME SCREEN"; inst.classList.add("on"); }
-  inst.onclick = () => { if (deferred) { deferred.prompt(); deferred = null; } inst.classList.remove("on"); };
+  // ---- installable web app (not used inside the phone app)
+  if (!native) {
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+    const inst = $("install"), standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+    let deferred = null;
+    addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; inst.classList.add("on"); });
+    addEventListener("appinstalled", () => inst.classList.remove("on"));
+    if (!standalone && /iphone|ipad|ipod/i.test(navigator.userAgent)) { inst.textContent = "INSTALL: TAP SHARE, THEN ADD TO HOME SCREEN"; inst.classList.add("on"); }
+    inst.onclick = () => { if (deferred) { deferred.prompt(); deferred = null; } inst.classList.remove("on"); };
+    setInterval(webReminderTick, 60000); setTimeout(webReminderTick, 3000);
+  }
 
-  paintMute(); hud(false); refill(); show();
-  window.__grid = { get streak() { return streak; }, get cur() { return cur; }, save };
+  rollDay(); planReminders(); refill(); show();
+  window.__grid = { get streak() { return streak; }, get cur() { return cur; }, save, webReminderTick, planReminders };
 })();
 </script>
 </body>

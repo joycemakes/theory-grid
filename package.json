@@ -1,0 +1,29 @@
+{
+  "name": "theory-streak",
+  "version": "1.0.0",
+  "description": "An endless streak game for revising the UK car theory test. Four answers, like the real test. Get one wrong and the screen goes red, the phone buzzes, and you are shown the right answer and why. Reach a streak of 43 to cross the pass line.",
+  "main": "questions.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joycemakes/theory-grid.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/joycemakes/theory-grid/issues"
+  },
+  "homepage": "https://github.com/joycemakes/theory-grid#readme",
+  "dependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/cli": "^8.6.2",
+    "@capacitor/core": "^8.6.2",
+    "@capacitor/local-notifications": "^8.3.1",
+    "@fontsource-variable/orbitron": "^5.3.0",
+    "@fontsource/rajdhani": "^5.3.0"
+  }
+}
